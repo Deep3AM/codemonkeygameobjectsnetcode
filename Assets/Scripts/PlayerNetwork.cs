@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 
 public class PlayerNetwork : NetworkBehaviour
 {
+    [SerializeField] private Transform spawendObjectPrefab;
+    private Transform spawnedObjectTransform;
     private NetworkVariable<MyCustomData> randomNumber = new NetworkVariable<MyCustomData>(
         new MyCustomData
         {
@@ -46,7 +48,13 @@ public class PlayerNetwork : NetworkBehaviour
             //        _bool = false,
             //        message = "All you base are belong to us!"
             //    };
-            TestServerRpc(new ServerRpcParams());
+            //TestClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = new List<ulong> { 1 } } });
+            spawnedObjectTransform = Instantiate(spawendObjectPrefab);
+            spawnedObjectTransform.GetComponent<NetworkObject>().Spawn(true);
+        }
+        if(Input.GetKeyDown(KeyCode.Y))
+        {
+            spawnedObjectTransform.GetComponent<NetworkObject>().Despawn(true);
         }
 
         Vector3 moveDir = new Vector3(0, 0, 0);
@@ -61,5 +69,10 @@ public class PlayerNetwork : NetworkBehaviour
     private void TestServerRpc(ServerRpcParams serverRpcParams)
     {
         Debug.Log("TestServerRpc " + OwnerClientId + "; " + serverRpcParams.Receive.SenderClientId);
+    }
+    [ClientRpc]
+    private void TestClientRpc(ClientRpcParams clientRpcParams)
+    {
+        Debug.Log("TestClientRpc " + OwnerClientId);
     }
 }
